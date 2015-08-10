@@ -1,0 +1,6 @@
+.RData
+.Rhistory
+.DS_Store
+activity.csv
+wip.R
+repdata_data_activity.zip
