@@ -12,26 +12,32 @@ output:
 setwd("/Users/smallwes/develop/academic/coursera/datascience/c5-repdata/pa1")
 ```
 
-Preliminary activities, A, Load libraries DPLYR, LUBRIDATE AND GGPLOT2.
-```{r task0prep2, echo=FALSE, eval=TRUE, collapse=TRUE}
+### Preliminary activities
+1. Load libraries DPLYR, LUBRIDATE AND GGPLOT2.
+```{r task0prep2, echo=FALSE, eval=TRUE, message=FALSE}
+# EVALUATE IF LIBRARIES NOT INSTALLED
 if (!"dplyr" %in% installed.packages()){ install.packages("dplyr") } 
-library(dplyr)
 if (!"lubridate" %in% installed.packages()){ install.packages("lubridate") } 
-library(lubridate)
 if (!"ggplot2" %in% installed.packages()){ install.packages("ggplot2") } 
+```
+```{r task0prep3, echo=TRUE, eval=TRUE, message=FALSE}
+library(dplyr)
+library(lubridate)
 library(ggplot2)
 ```
 
-Helper functions created for tidy data/plotting; Setup for the step interval scale to the logical hour and associated label.
+2. Helper functions created for tidy data/plotting; Setup for the step interval scale to the logical hour and associated label.
 ```{r task0prephelpers}
 intervalDivision <- split( 0:288, ceiling(seq_along(0:288)/12))
-stepScaleBreaks <- function() { 
+
+getStepScaleBreaks <- function() { 
     output <- numeric(length = 25) 
     for(i in 1:25) 
         output[i] <-intervalDivision[[i]][1] 
     output
 }
-stepScaleLabels <- function() { 
+
+getStepScaleLabels <- function() { 
     output <- numeric(length = 25) 
     for(i in 1:25) {
         dayPeriod <-"am"
@@ -41,8 +47,9 @@ stepScaleLabels <- function() {
     output
 }
 ```
+
 ***
-### TASK A "Load the data"
+### TASK 1: "Load the data"
 Load the dataset and perform some tranformations suitable for further analysis below.
 ```{r task1step1load}
 dfActivity <- read.csv("activity.csv")
@@ -70,8 +77,8 @@ subsetDTActivityA <-
     group_by(date) %>%
     summarise(
         tot_steps = sum(steps),
-        avg_steps = mean(steps),
-        med_steps = median(steps))
+        avg_steps = mean(steps, na.rm = TRUE),
+        med_steps = median(steps, na.rm = TRUE))
 ```
 The histogram of the total number of steps taken each day
 ```{r task2step2}
@@ -88,6 +95,16 @@ qplot(
 
 Calculate and report the mean and median total number of steps taken per day
 ```{r task2step3}
+stepReport <- subsetDTActivityA %>%
+                select(date,avg_steps,med_steps)
+stepReport
+```
+
+***
+### TASK 3: "What is the average daily activity pattern?"
+Shown below is a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis):
+```{r task3step1}
+# SUMMARIZE DATASET TO OBTAIN AVERAGE STEPS
 subsetDTActivityB <- 
   dtActivity %>% 
   select( interval, steps) %>%
@@ -96,15 +113,8 @@ subsetDTActivityB <-
   summarise(average_steps = mean(steps))
 
 subsetDTActivityB$interval <- as.numeric(subsetDTActivityB$interval) 
-#dtFinal$interval <- as.numeric(as.character(dtFinal$interval))
-
-head(subsetDTActivityB)
 ```
-
-***
-### TASK 3: "What is the average daily activity pattern?"
-Shown below is a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis):
-```{r task3step1}
+```{r task3step2}
 qplot(
       interval, 
       average_steps,
@@ -113,12 +123,12 @@ qplot(
       main = "Average Number Step Rate Record Over A Day",
       xlab = "Hour of Day [Generated from 288 5 minute Observations]",
       ylab = "Average Steps Rate") + 
-    scale_x_continuous(breaks = stepScaleBreaks(), labels=stepScaleLabels()) +
+    scale_x_continuous(breaks = getStepScaleBreaks(), labels = getStepScaleLabels()) +
     theme(axis.text.x = element_text(angle=90))
 ```
 
-
-```{r task3step2}
+#### "Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?"
+```{r task3step3}
 subsetDTActivityC <- 
     dtActivity %>% 
     select( interval, steps) %>%
@@ -127,19 +137,26 @@ subsetDTActivityC <-
     summarise(average_steps = mean(steps))
 maxNumberSteps <- subsetDTActivityC[subsetDTActivityC$average_steps == max(subsetDTActivityC$average_steps),]
 ```
-"Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?"
-
-ANSWER: Time interval labelled: `r maxNumberSteps$interval` has the maximum average number of steps at `r maxNumberSteps$average_steps`
+####ANSWER: 
+Time interval labelled: `r maxNumberSteps$interval` has the maximum average number of steps at `r maxNumberSteps$average_steps`
 
 ***
 ### TASK 4: Inputing Missing Values
+Replacing the NAs in step count with averages of the total step count.  The Averages are rounded up to the nearest whole integer number.
+```{r task4step1a, message=FALSE, echo=FALSE}
+# NUMBER OF COMPLETE ROWS
+totalCompleteCases <- sum(complete.cases(dtActivity) == TRUE)
+# NUMBER OF COMPLETE
+totalIncompleteCases<- sum(complete.cases(dtActivity) == FALSE)
+```
+In the provided Activity dataset, there are `r totalIncompleteCases` records that have a step count missing out of the total `r totalCompleteCases + totalIncompleteCases`
 
-```{r task4step1}
-sum(complete.cases(dtActivity) == FALSE)
-
+```{r task4step1b, message=FALSE}
+# FILTER FOR COMPLETE VS INCOMPLETE
 dtActivityComplete <- dtActivity[(complete.cases(dtActivity) == TRUE),]
 dtActivityMissing <- dtActivity[(complete.cases(dtActivity) == FALSE),]
 
+# CALCULATE INTERVAL BASED STEP AVERAGES
 subsetDTActivityStepAvg <- 
   dtActivity %>% 
   select( interval, steps) %>%
@@ -147,13 +164,18 @@ subsetDTActivityStepAvg <-
   group_by(interval) %>%
   summarise(average_steps = mean(steps))
 
+# LEFT JOIN THE AVERAGES TO INCOMPLETE CASES
 dtActivityMissingAvg <- inner_join(x = dtActivityMissing, y = subsetDTActivityStepAvg)
+# ROUND UP THE AVERAGES AND ASSIGN TO THE STEPS COLUMN
 dtActivityMissingAvg$steps <- ceiling(dtActivityMissingAvg$average_steps)
 
+# OBTAIN A NEW DATASET FOR THE FIXED MISSING CASES
 dtActivityNotMissing <- dtActivityMissingAvg[, (colnames(dtActivityMissingAvg) %in% c("steps","date","interval"))]
 
+# RECREATE A NEW COMPLETE DATASET
 dtActivityUpdated <- rbind(dtActivityComplete, dtActivityNotMissing)
 
+# SUMMARIZE THE STEPS BY TOTAL #, AVERAGE AND MEDIAN
 subsetDTActivityUpdated <- 
   dtActivityUpdated %>% 
   select( date, steps) %>%
@@ -165,6 +187,7 @@ subsetDTActivityUpdated <-
 ```
 
 ```{r task4step2}
+# PLOT COMPLETE CASES DATASET
 qplot(subsetDTActivityUpdated$tot_steps,
       binwidth = 500,
       geom = "histogram", 
@@ -177,25 +200,29 @@ qplot(subsetDTActivityUpdated$tot_steps,
 
 ***
 ### TASK 5: Activity patterns on weekdays vs. weekends?
+The follow is the logic used to add the Weekend Vs Weekend Factor Categorical factors into the data.
 ```{r task5step1}
+# CREATE NEW FUNCTION TO RETURN THE FACTOR BASED ON THE WEEKDAYS FUNCTION
 getWeekPeriod <- function(x) { 
     if (weekdays(as.POSIXct(x)) %in% c("Saturday","Sunday"))
         as.factor("WEEKEND") 
     else
         as.factor("WEEKDAY") 
 }
+# BIND THE NEW CONTENT TO THE EXISTING TABLE
 dtFinal<- cbind(dtActivityUpdated, sapply(dtActivityUpdated$date,getWeekPeriod))
 colnames(dtFinal) <- c("steps","date","interval","weekperiod")
-str(dtFinal)
 
+# CALCULATE THE AVERAGES GROUPED BY WEEK-PERIOD, AND INTERVAL
 dtFinal$interval <- as.numeric(dtFinal$interval)
 dtFinalScrubbed <- 
     dtFinal %>% 
     group_by(weekperiod, interval) %>%
     summarise(average_steps = mean(steps))
-str(dtFinalScrubbed)
+
 ```
 
+The following is the plot showing the activity level differences on the weekend vs the work week days.
 ```{r task5step2}
 p <- qplot(
         interval, 
@@ -207,7 +234,7 @@ p <- qplot(
         main = "Average No. of Steps Taken by Time of Day\nDivided by Weekend Period",
         xlab = "Time Interval (288 5 minute Observations by Hour)",
         ylab = "Average Steps") +
-    scale_x_continuous(breaks = stepScaleBreaks(), labels=stepScaleLabels()) +
+    scale_x_continuous(breaks = getStepScaleBreaks(), labels = getStepScaleLabels()) +
     theme(axis.text.x = element_text(angle=90))
 p
 ```

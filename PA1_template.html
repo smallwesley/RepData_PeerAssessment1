@@ -69,26 +69,27 @@ img {
 </div>
 
 
-<p>Preliminary activities, A, Load libraries DPLYR, LUBRIDATE AND GGPLOT2.</p>
-<pre><code>## 
-## Attaching package: &#39;dplyr&#39;
-## 
-## The following objects are masked from &#39;package:stats&#39;:
-## 
-##     filter, lag
-## 
-## The following objects are masked from &#39;package:base&#39;:
-## 
-##     intersect, setdiff, setequal, union</code></pre>
-<p>Helper functions created for tidy data/plotting; Setup for the step interval scale to the logical hour and associated label.</p>
+<div id="preliminary-activities" class="section level3">
+<h3>Preliminary activities</h3>
+<ol style="list-style-type: decimal">
+<li>Load libraries DPLYR, LUBRIDATE AND GGPLOT2.</li>
+</ol>
+<pre class="r"><code>library(dplyr)
+library(lubridate)
+library(ggplot2)</code></pre>
+<ol start="2" style="list-style-type: decimal">
+<li>Helper functions created for tidy data/plotting; Setup for the step interval scale to the logical hour and associated label.</li>
+</ol>
 <pre class="r"><code>intervalDivision &lt;- split( 0:288, ceiling(seq_along(0:288)/12))
-stepScaleBreaks &lt;- function() { 
+
+getStepScaleBreaks &lt;- function() { 
     output &lt;- numeric(length = 25) 
     for(i in 1:25) 
         output[i] &lt;-intervalDivision[[i]][1] 
     output
 }
-stepScaleLabels &lt;- function() { 
+
+getStepScaleLabels &lt;- function() { 
     output &lt;- numeric(length = 25) 
     for(i in 1:25) {
         dayPeriod &lt;-&quot;am&quot;
@@ -98,8 +99,9 @@ stepScaleLabels &lt;- function() {
     output
 }</code></pre>
 <hr />
-<div id="task-a-load-the-data" class="section level3">
-<h3>TASK A “Load the data”</h3>
+</div>
+<div id="task-1-load-the-data" class="section level3">
+<h3>TASK 1: “Load the data”</h3>
 <p>Load the dataset and perform some tranformations suitable for further analysis below.</p>
 <pre class="r"><code>dfActivity &lt;- read.csv(&quot;activity.csv&quot;)</code></pre>
 <p>Transformations to original dataset:</p>
@@ -124,8 +126,8 @@ dtActivity &lt;- tbl_df(dfActivity)</code></pre>
     group_by(date) %&gt;%
     summarise(
         tot_steps = sum(steps),
-        avg_steps = mean(steps),
-        med_steps = median(steps))</code></pre>
+        avg_steps = mean(steps, na.rm = TRUE),
+        med_steps = median(steps, na.rm = TRUE))</code></pre>
 <p>The histogram of the total number of steps taken each day</p>
 <pre class="r"><code>qplot(
     subsetDTActivityA$tot_steps,
@@ -138,31 +140,37 @@ dtActivity &lt;- tbl_df(dfActivity)</code></pre>
     colour = I(&quot;black&quot;)) </code></pre>
 <p><img src="PA1_template_files/figure-html/task2step2-1.png" /></p>
 <p>Calculate and report the mean and median total number of steps taken per day</p>
-<pre class="r"><code>subsetDTActivityB &lt;- 
+<pre class="r"><code>stepReport &lt;- subsetDTActivityA %&gt;%
+                select(date,avg_steps,med_steps)
+stepReport</code></pre>
+<pre><code>## Source: local data frame [53 x 3]
+## 
+##          date avg_steps med_steps
+## 1  2012-10-02   0.43750         0
+## 2  2012-10-03  39.41667         0
+## 3  2012-10-04  42.06944         0
+## 4  2012-10-05  46.15972         0
+## 5  2012-10-06  53.54167         0
+## 6  2012-10-07  38.24653         0
+## 7  2012-10-09  44.48264         0
+## 8  2012-10-10  34.37500         0
+## 9  2012-10-11  35.77778         0
+## 10 2012-10-12  60.35417         0
+## ..        ...       ...       ...</code></pre>
+<hr />
+</div>
+<div id="task-3-what-is-the-average-daily-activity-pattern" class="section level3">
+<h3>TASK 3: “What is the average daily activity pattern?”</h3>
+<p>Shown below is a time series plot (i.e. type = “l”) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis):</p>
+<pre class="r"><code># SUMMARIZE DATASET TO OBTAIN AVERAGE STEPS
+subsetDTActivityB &lt;- 
   dtActivity %&gt;% 
   select( interval, steps) %&gt;%
   filter( !is.na(steps) ) %&gt;%
   group_by(interval) %&gt;%
   summarise(average_steps = mean(steps))
 
-subsetDTActivityB$interval &lt;- as.numeric(subsetDTActivityB$interval) 
-#dtFinal$interval &lt;- as.numeric(as.character(dtFinal$interval))
-
-head(subsetDTActivityB)</code></pre>
-<pre><code>## Source: local data frame [6 x 2]
-## 
-##   interval average_steps
-## 1        1     1.7169811
-## 2        2     0.3396226
-## 3        3     0.1320755
-## 4        4     0.1509434
-## 5        5     0.0754717
-## 6        6     2.0943396</code></pre>
-<hr />
-</div>
-<div id="task-3-what-is-the-average-daily-activity-pattern" class="section level3">
-<h3>TASK 3: “What is the average daily activity pattern?”</h3>
-<p>Shown below is a time series plot (i.e. type = “l”) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis):</p>
+subsetDTActivityB$interval &lt;- as.numeric(subsetDTActivityB$interval) </code></pre>
 <pre class="r"><code>qplot(
       interval, 
       average_steps,
@@ -171,9 +179,11 @@ head(subsetDTActivityB)</code></pre>
       main = &quot;Average Number Step Rate Record Over A Day&quot;,
       xlab = &quot;Hour of Day [Generated from 288 5 minute Observations]&quot;,
       ylab = &quot;Average Steps Rate&quot;) + 
-    scale_x_continuous(breaks = stepScaleBreaks(), labels=stepScaleLabels()) +
+    scale_x_continuous(breaks = getStepScaleBreaks(), labels = getStepScaleLabels()) +
     theme(axis.text.x = element_text(angle=90))</code></pre>
-<p><img src="PA1_template_files/figure-html/task3step1-1.png" /></p>
+<p><img src="PA1_template_files/figure-html/task3step2-1.png" /></p>
+<div id="which-5-minute-interval-on-average-across-all-the-days-in-the-dataset-contains-the-maximum-number-of-steps" class="section level4">
+<h4>“Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?”</h4>
 <pre class="r"><code>subsetDTActivityC &lt;- 
     dtActivity %&gt;% 
     select( interval, steps) %&gt;%
@@ -181,17 +191,22 @@ head(subsetDTActivityB)</code></pre>
     group_by(interval) %&gt;%
     summarise(average_steps = mean(steps))
 maxNumberSteps &lt;- subsetDTActivityC[subsetDTActivityC$average_steps == max(subsetDTActivityC$average_steps),]</code></pre>
-<p>“Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?”</p>
-<p>ANSWER: Time interval labelled: 835 has the maximum average number of steps at 206.1698113</p>
+</div>
+<div id="answer" class="section level4">
+<h4>ANSWER:</h4>
+<p>Time interval labelled: 835 has the maximum average number of steps at 206.1698113</p>
 <hr />
+</div>
 </div>
 <div id="task-4-inputing-missing-values" class="section level3">
 <h3>TASK 4: Inputing Missing Values</h3>
-<pre class="r"><code>sum(complete.cases(dtActivity) == FALSE)</code></pre>
-<pre><code>## [1] 2304</code></pre>
-<pre class="r"><code>dtActivityComplete &lt;- dtActivity[(complete.cases(dtActivity) == TRUE),]
+<p>Replacing the NAs in step count with averages of the total step count. The Averages are rounded up to the nearest whole integer number.</p>
+<p>In the provided Activity dataset, there are 2304 records that have a step count missing out of the total 17568</p>
+<pre class="r"><code># FILTER FOR COMPLETE VS INCOMPLETE
+dtActivityComplete &lt;- dtActivity[(complete.cases(dtActivity) == TRUE),]
 dtActivityMissing &lt;- dtActivity[(complete.cases(dtActivity) == FALSE),]
 
+# CALCULATE INTERVAL BASED STEP AVERAGES
 subsetDTActivityStepAvg &lt;- 
   dtActivity %&gt;% 
   select( interval, steps) %&gt;%
@@ -199,14 +214,18 @@ subsetDTActivityStepAvg &lt;-
   group_by(interval) %&gt;%
   summarise(average_steps = mean(steps))
 
-dtActivityMissingAvg &lt;- inner_join(x = dtActivityMissing, y = subsetDTActivityStepAvg)</code></pre>
-<pre><code>## Joining by: &quot;interval&quot;</code></pre>
-<pre class="r"><code>dtActivityMissingAvg$steps &lt;- ceiling(dtActivityMissingAvg$average_steps)
+# LEFT JOIN THE AVERAGES TO INCOMPLETE CASES
+dtActivityMissingAvg &lt;- inner_join(x = dtActivityMissing, y = subsetDTActivityStepAvg)
+# ROUND UP THE AVERAGES AND ASSIGN TO THE STEPS COLUMN
+dtActivityMissingAvg$steps &lt;- ceiling(dtActivityMissingAvg$average_steps)
 
+# OBTAIN A NEW DATASET FOR THE FIXED MISSING CASES
 dtActivityNotMissing &lt;- dtActivityMissingAvg[, (colnames(dtActivityMissingAvg) %in% c(&quot;steps&quot;,&quot;date&quot;,&quot;interval&quot;))]
 
+# RECREATE A NEW COMPLETE DATASET
 dtActivityUpdated &lt;- rbind(dtActivityComplete, dtActivityNotMissing)
 
+# SUMMARIZE THE STEPS BY TOTAL #, AVERAGE AND MEDIAN
 subsetDTActivityUpdated &lt;- 
   dtActivityUpdated %&gt;% 
   select( date, steps) %&gt;%
@@ -215,7 +234,8 @@ subsetDTActivityUpdated &lt;-
   summarise(tot_steps = sum(steps),
             avg_steps = mean(steps),
             med_steps = median(steps))</code></pre>
-<pre class="r"><code>qplot(subsetDTActivityUpdated$tot_steps,
+<pre class="r"><code># PLOT COMPLETE CASES DATASET
+qplot(subsetDTActivityUpdated$tot_steps,
       binwidth = 500,
       geom = &quot;histogram&quot;, 
       main = &quot;Histogram Registering Number of Days Reaching Step Totals&quot;,
@@ -228,33 +248,25 @@ subsetDTActivityUpdated &lt;-
 </div>
 <div id="task-5-activity-patterns-on-weekdays-vs.weekends" class="section level3">
 <h3>TASK 5: Activity patterns on weekdays vs. weekends?</h3>
-<pre class="r"><code>getWeekPeriod &lt;- function(x) { 
+<p>The follow is the logic used to add the Weekend Vs Weekend Factor Categorical factors into the data.</p>
+<pre class="r"><code># CREATE NEW FUNCTION TO RETURN THE FACTOR BASED ON THE WEEKDAYS FUNCTION
+getWeekPeriod &lt;- function(x) { 
     if (weekdays(as.POSIXct(x)) %in% c(&quot;Saturday&quot;,&quot;Sunday&quot;))
         as.factor(&quot;WEEKEND&quot;) 
     else
         as.factor(&quot;WEEKDAY&quot;) 
 }
+# BIND THE NEW CONTENT TO THE EXISTING TABLE
 dtFinal&lt;- cbind(dtActivityUpdated, sapply(dtActivityUpdated$date,getWeekPeriod))
 colnames(dtFinal) &lt;- c(&quot;steps&quot;,&quot;date&quot;,&quot;interval&quot;,&quot;weekperiod&quot;)
-str(dtFinal)</code></pre>
-<pre><code>## &#39;data.frame&#39;:    17568 obs. of  4 variables:
-##  $ steps     : num  0 0 0 0 0 0 0 0 0 0 ...
-##  $ date      : Factor w/ 61 levels &quot;2012-10-01&quot;,&quot;2012-10-02&quot;,..: 2 2 2 2 2 2 2 2 2 2 ...
-##  $ interval  : Factor w/ 288 levels &quot;0&quot;,&quot;5&quot;,&quot;10&quot;,&quot;15&quot;,..: 1 2 3 4 5 6 7 8 9 10 ...
-##  $ weekperiod: Factor w/ 2 levels &quot;WEEKDAY&quot;,&quot;WEEKEND&quot;: 1 1 1 1 1 1 1 1 1 1 ...</code></pre>
-<pre class="r"><code>dtFinal$interval &lt;- as.numeric(dtFinal$interval)
+
+# CALCULATE THE AVERAGES GROUPED BY WEEK-PERIOD, AND INTERVAL
+dtFinal$interval &lt;- as.numeric(dtFinal$interval)
 dtFinalScrubbed &lt;- 
     dtFinal %&gt;% 
     group_by(weekperiod, interval) %&gt;%
-    summarise(average_steps = mean(steps))
-str(dtFinalScrubbed)</code></pre>
-<pre><code>## Classes &#39;grouped_df&#39;, &#39;tbl_df&#39;, &#39;tbl&#39; and &#39;data.frame&#39;:  576 obs. of  3 variables:
-##  $ weekperiod   : Factor w/ 2 levels &quot;WEEKDAY&quot;,&quot;WEEKEND&quot;: 1 1 1 1 1 1 1 1 1 1 ...
-##  $ interval     : num  1 2 3 4 5 6 7 8 9 10 ...
-##  $ average_steps: num  2.289 0.533 0.289 0.311 0.222 ...
-##  - attr(*, &quot;vars&quot;)=List of 1
-##   ..$ : symbol weekperiod
-##  - attr(*, &quot;drop&quot;)= logi TRUE</code></pre>
+    summarise(average_steps = mean(steps))</code></pre>
+<p>The following is the plot showing the activity level differences on the weekend vs the work week days.</p>
 <pre class="r"><code>p &lt;- qplot(
         interval, 
         average_steps, 
@@ -265,7 +277,7 @@ str(dtFinalScrubbed)</code></pre>
         main = &quot;Average No. of Steps Taken by Time of Day\nDivided by Weekend Period&quot;,
         xlab = &quot;Time Interval (288 5 minute Observations by Hour)&quot;,
         ylab = &quot;Average Steps&quot;) +
-    scale_x_continuous(breaks = stepScaleBreaks(), labels=stepScaleLabels()) +
+    scale_x_continuous(breaks = getStepScaleBreaks(), labels = getStepScaleLabels()) +
     theme(axis.text.x = element_text(angle=90))
 p</code></pre>
 <p><img src="PA1_template_files/figure-html/task5step2-1.png" /></p>
