@@ -70,9 +70,10 @@ str(dfActivity)
 
 ```r
 subsetDTActivityA <- 
-    dtActivity %>% 
+    dtActivity %>%
+    na.omit() %>%
     select( date, steps) %>%
-    filter( !is.na(steps)) %>%
+    filter(!(is.na(steps) | is.nan(steps))) %>%
     group_by(date) %>%
     summarise(
         tot_steps = sum(steps),
@@ -100,25 +101,66 @@ Calculate and report the mean and median total number of steps taken per day
 ```r
 stepReport <- subsetDTActivityA %>%
                 select(date,avg_steps,med_steps)
-stepReport
+knitr::kable(stepReport)
 ```
 
-```
-## Source: local data frame [53 x 3]
-## 
-##          date avg_steps med_steps
-## 1  2012-10-02   0.43750         0
-## 2  2012-10-03  39.41667         0
-## 3  2012-10-04  42.06944         0
-## 4  2012-10-05  46.15972         0
-## 5  2012-10-06  53.54167         0
-## 6  2012-10-07  38.24653         0
-## 7  2012-10-09  44.48264         0
-## 8  2012-10-10  34.37500         0
-## 9  2012-10-11  35.77778         0
-## 10 2012-10-12  60.35417         0
-## ..        ...       ...       ...
-```
+
+
+date           avg_steps   med_steps
+-----------  -----------  ----------
+2012-10-02     0.4375000           0
+2012-10-03    39.4166667           0
+2012-10-04    42.0694444           0
+2012-10-05    46.1597222           0
+2012-10-06    53.5416667           0
+2012-10-07    38.2465278           0
+2012-10-09    44.4826389           0
+2012-10-10    34.3750000           0
+2012-10-11    35.7777778           0
+2012-10-12    60.3541667           0
+2012-10-13    43.1458333           0
+2012-10-14    52.4236111           0
+2012-10-15    35.2048611           0
+2012-10-16    52.3750000           0
+2012-10-17    46.7083333           0
+2012-10-18    34.9166667           0
+2012-10-19    41.0729167           0
+2012-10-20    36.0937500           0
+2012-10-21    30.6284722           0
+2012-10-22    46.7361111           0
+2012-10-23    30.9652778           0
+2012-10-24    29.0104167           0
+2012-10-25     8.6527778           0
+2012-10-26    23.5347222           0
+2012-10-27    35.1354167           0
+2012-10-28    39.7847222           0
+2012-10-29    17.4236111           0
+2012-10-30    34.0937500           0
+2012-10-31    53.5208333           0
+2012-11-02    36.8055556           0
+2012-11-03    36.7048611           0
+2012-11-05    36.2465278           0
+2012-11-06    28.9375000           0
+2012-11-07    44.7326389           0
+2012-11-08    11.1770833           0
+2012-11-11    43.7777778           0
+2012-11-12    37.3784722           0
+2012-11-13    25.4722222           0
+2012-11-15     0.1423611           0
+2012-11-16    18.8923611           0
+2012-11-17    49.7881944           0
+2012-11-18    52.4652778           0
+2012-11-19    30.6979167           0
+2012-11-20    15.5277778           0
+2012-11-21    44.3993056           0
+2012-11-22    70.9270833           0
+2012-11-23    73.5902778           0
+2012-11-24    50.2708333           0
+2012-11-25    41.0902778           0
+2012-11-26    38.7569444           0
+2012-11-27    47.3819444           0
+2012-11-28    35.3576389           0
+2012-11-29    24.4687500           0
 
 ***
 ### TASK 3: "What is the average daily activity pattern?"
@@ -166,7 +208,7 @@ maxNumberSteps <- subsetDTActivityC[subsetDTActivityC$average_steps == max(subse
 Time interval labelled: 835 has the maximum average number of steps at 206.1698113
 
 ***
-### TASK 4: Inputing Missing Values
+### TASK 4: Imputing Missing Values
 Replacing the NAs in step count with averages of the total step count.  The Averages are rounded up to the nearest whole integer number.
 
 In the provided Activity dataset, there are 2304 records that have a step count missing out of the total 17568
@@ -179,11 +221,10 @@ dtActivityMissing <- dtActivity[(complete.cases(dtActivity) == FALSE),]
 
 # CALCULATE INTERVAL BASED STEP AVERAGES
 subsetDTActivityStepAvg <- 
-  dtActivity %>% 
+  dtActivity %>%
   select( interval, steps) %>%
-  filter( !is.na(steps) ) %>%
   group_by(interval) %>%
-  summarise(average_steps = mean(steps))
+  summarise(average_steps = mean(steps, na.rm = TRUE))
 
 # LEFT JOIN THE AVERAGES TO INCOMPLETE CASES
 dtActivityMissingAvg <- inner_join(x = dtActivityMissing, y = subsetDTActivityStepAvg)
@@ -200,7 +241,6 @@ dtActivityUpdated <- rbind(dtActivityComplete, dtActivityNotMissing)
 subsetDTActivityUpdated <- 
   dtActivityUpdated %>% 
   select( date, steps) %>%
-  filter( !is.na(steps) ) %>%
   group_by(date) %>%
   summarise(tot_steps = sum(steps),
             avg_steps = mean(steps),

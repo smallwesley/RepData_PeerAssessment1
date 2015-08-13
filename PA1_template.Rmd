@@ -71,9 +71,10 @@ str(dfActivity)
 ### TASK 2: "What is mean total number of steps taken per day?""
 ```{r task2step1}
 subsetDTActivityA <- 
-    dtActivity %>% 
+    dtActivity %>%
+    na.omit() %>%
     select( date, steps) %>%
-    filter( !is.na(steps)) %>%
+    filter(!(is.na(steps) | is.nan(steps))) %>%
     group_by(date) %>%
     summarise(
         tot_steps = sum(steps),
@@ -94,10 +95,10 @@ qplot(
 ```
 
 Calculate and report the mean and median total number of steps taken per day
-```{r task2step3}
+```{r task2step3,results='asis'}
 stepReport <- subsetDTActivityA %>%
                 select(date,avg_steps,med_steps)
-stepReport
+knitr::kable(stepReport)
 ```
 
 ***
@@ -141,7 +142,7 @@ maxNumberSteps <- subsetDTActivityC[subsetDTActivityC$average_steps == max(subse
 Time interval labelled: `r maxNumberSteps$interval` has the maximum average number of steps at `r maxNumberSteps$average_steps`
 
 ***
-### TASK 4: Inputing Missing Values
+### TASK 4: Imputing Missing Values
 Replacing the NAs in step count with averages of the total step count.  The Averages are rounded up to the nearest whole integer number.
 ```{r task4step1a, message=FALSE, echo=FALSE}
 # NUMBER OF COMPLETE ROWS
@@ -158,11 +159,10 @@ dtActivityMissing <- dtActivity[(complete.cases(dtActivity) == FALSE),]
 
 # CALCULATE INTERVAL BASED STEP AVERAGES
 subsetDTActivityStepAvg <- 
-  dtActivity %>% 
+  dtActivity %>%
   select( interval, steps) %>%
-  filter( !is.na(steps) ) %>%
   group_by(interval) %>%
-  summarise(average_steps = mean(steps))
+  summarise(average_steps = mean(steps, na.rm = TRUE))
 
 # LEFT JOIN THE AVERAGES TO INCOMPLETE CASES
 dtActivityMissingAvg <- inner_join(x = dtActivityMissing, y = subsetDTActivityStepAvg)
@@ -179,7 +179,6 @@ dtActivityUpdated <- rbind(dtActivityComplete, dtActivityNotMissing)
 subsetDTActivityUpdated <- 
   dtActivityUpdated %>% 
   select( date, steps) %>%
-  filter( !is.na(steps) ) %>%
   group_by(date) %>%
   summarise(tot_steps = sum(steps),
             avg_steps = mean(steps),
