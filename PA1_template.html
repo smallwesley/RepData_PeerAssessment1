@@ -136,7 +136,7 @@ dtActivity &lt;- tbl_df(dfActivity)</code></pre>
     ylab = &quot;Number of Days&quot;,
     fill = I(&quot;lightgreen&quot;), 
     colour = I(&quot;black&quot;)) </code></pre>
-<p><img src="PA1_template_files/figure-html/task2step2-1.png" title="" alt="" width="672" /></p>
+<p><img src="PA1_template_files/figure-html/task2step2-1.png" /></p>
 <p>Calculate and report the mean and median total number of steps taken per day</p>
 <pre class="r"><code>subsetDTActivityB &lt;- 
   dtActivity %&gt;% 
@@ -173,7 +173,7 @@ head(subsetDTActivityB)</code></pre>
       ylab = &quot;Average Steps Rate&quot;) + 
     scale_x_continuous(breaks = stepScaleBreaks(), labels=stepScaleLabels()) +
     theme(axis.text.x = element_text(angle=90))</code></pre>
-<p><img src="PA1_template_files/figure-html/task3step1-1.png" title="" alt="" width="672" /></p>
+<p><img src="PA1_template_files/figure-html/task3step1-1.png" /></p>
 <pre class="r"><code>subsetDTActivityC &lt;- 
     dtActivity %&gt;% 
     select( interval, steps) %&gt;%
@@ -223,7 +223,7 @@ subsetDTActivityUpdated &lt;-
       ylab = &quot;Number of Days&quot;,
       fill = I(&quot;orange&quot;), 
       colour = I(&quot;black&quot;)) </code></pre>
-<p><img src="PA1_template_files/figure-html/task4step2-1.png" title="" alt="" width="672" /></p>
+<p><img src="PA1_template_files/figure-html/task4step2-1.png" /></p>
 <hr />
 </div>
 <div id="task-5-activity-patterns-on-weekdays-vs.weekends" class="section level3">
@@ -268,7 +268,7 @@ str(dtFinalScrubbed)</code></pre>
     scale_x_continuous(breaks = stepScaleBreaks(), labels=stepScaleLabels()) +
     theme(axis.text.x = element_text(angle=90))
 p</code></pre>
-<p><img src="PA1_template_files/figure-html/task5step2-1.png" title="" alt="" width="672" /></p>
+<p><img src="PA1_template_files/figure-html/task5step2-1.png" /></p>
 </div>
 
 
