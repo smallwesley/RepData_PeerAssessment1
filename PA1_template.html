@@ -11,7 +11,7 @@
 <meta name="author" content="Wesley Small" />
 
 
-<title>Reproducible Data Coursera; Peer Assignment 1</title>
+<title>Reproducible Data Courseral Peer Assignment 1</title>
 
 <script src="PA1_template_files/jquery-1.11.0/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -63,12 +63,26 @@ img {
 
 
 <div id="header">
-<h1 class="title">Reproducible Data Coursera; Peer Assignment 1</h1>
+<h1 class="title">Reproducible Data Courseral Peer Assignment 1</h1>
 <h4 class="author"><em>Wesley Small</em></h4>
 <h4 class="date"><em>August 8, 2015</em></h4>
 </div>
 
 
+<div id="background" class="section level3">
+<h3>Background</h3>
+<p>This assignment makes use of data from a personal activity monitoring device (fitbit. This device collects data at 5 minute intervals through out the day. The data consists of two months of data from an anonymous individual collected during the months of October and November, 2012 and include the number of steps taken in 5 minute intervals each day.</p>
+</div>
+<div id="about-the-activity-data" class="section level3">
+<h3>About the Activity Data</h3>
+<p>The variables included in this dataset are:</p>
+<ul>
+<li><strong>steps</strong>: Number of steps taking in a 5-minute interval (missing values are coded as NA)</li>
+<li><strong>date</strong>: The date on which the measurement was taken in YYYY-MM-DD format</li>
+<li><strong>interval</strong>: Identifier for the 5-minute interval in which measurement was taken</li>
+</ul>
+<p>The dataset is stored in a comma-separated-value (CSV) file and there are a total of 17,568 observations in this dataset. The dataset is found at: <strong><a href="https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip">https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip</a></strong></p>
+</div>
 <div id="preliminary-activities" class="section level3">
 <h3>Preliminary activities</h3>
 <ol style="list-style-type: decimal">
@@ -82,14 +96,16 @@ library(ggplot2)</code></pre>
 </ol>
 <pre class="r"><code>intervalDivision &lt;- split( 0:288, ceiling(seq_along(0:288)/12))
 
-getStepScaleBreaks &lt;- function() { 
+getStepScaleBreaks &lt;- function() {
+    # USED IN SETTING THE TICKS IN VARIOUS PLOTS BELOW
     output &lt;- numeric(length = 25) 
     for(i in 1:25) 
         output[i] &lt;-intervalDivision[[i]][1] 
     output
 }
 
-getStepScaleLabels &lt;- function() { 
+getStepScaleLabels &lt;- function() {
+    # USED IN SETTING THE TICK LABELS IN THE PLOTS BELOW BY TIME OF DAY HH:MM (am/pm)
     output &lt;- numeric(length = 25) 
     for(i in 1:25) {
         dayPeriod &lt;-&quot;am&quot;
@@ -103,7 +119,33 @@ getStepScaleLabels &lt;- function() {
 <div id="task-1-load-the-data" class="section level3">
 <h3>TASK 1: “Load the data”</h3>
 <p>Load the dataset and perform some tranformations suitable for further analysis below.</p>
-<pre class="r"><code>dfActivity &lt;- read.csv(&quot;activity.csv&quot;)</code></pre>
+<pre class="r"><code># HELPER TO LOAD DATASET (OR RETRIEVE FROM REMOTE LOCATION)
+if (!&quot;curl&quot; %in% installed.packages()){ install.packages(&quot;curl&quot;) } 
+getDatasetLoaded &lt;- function(localFileName,remoteFilePath) {
+    if(!file.exists(localFileName)) {
+        message(localFileName)
+        remoteFileName &lt;- basename(remoteFilePath)
+        message(remoteFileName)
+        if (!file.exists(remoteFileName)) {
+            message(remoteFilePath)
+            downloadedTemporaryFile &lt;- tempfile()
+            
+            library(curl)
+            download.file(remoteFilePath,downloadedTemporaryFile,method=&quot;curl&quot;)
+        }
+        # [NOTE:] IF DOWNLOAD FILE ERROR OR STILL NOT EXIST, THEN STOP EXECUTION
+        if (!&quot;tools&quot; %in% installed.packages()){ install.packages(&quot;tools&quot;) } 
+        library(tools)
+        if ( file_ext(remoteFileName) == &quot;zip&quot;) { unzip(downloadedTemporaryFile) }
+        # REMOVE TEMP FILE
+        unlink(downloadedTemporaryFile)
+    }
+    read.csv(localFileName) # RETURN LOADED DATA.FRAME
+}
+
+dfActivity &lt;- 
+    getDatasetLoaded(
+      &quot;activity.csv&quot;, &quot;https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip&quot;)</code></pre>
 <p>Transformations to original dataset:</p>
 <pre class="r"><code>dfActivity$date &lt;- ymd(dfActivity$date)
 dfActivity$date &lt;- as.factor(dfActivity$date)
