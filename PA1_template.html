@@ -125,13 +125,20 @@ dtActivity &lt;- tbl_df(dfActivity)</code></pre>
     select( date, steps) %&gt;%
     filter(!(is.na(steps) | is.nan(steps))) %&gt;%
     group_by(date) %&gt;%
-    summarise(
-        tot_steps = sum(steps),
-        avg_steps = mean(steps, na.rm = TRUE),
-        med_steps = median(steps, na.rm = TRUE))</code></pre>
-<p>The histogram of the total number of steps taken each day</p>
+    summarise(total_steps = sum(steps))</code></pre>
+<p>The histogram of the total number of steps taken each day.</p>
 <pre class="r"><code>qplot(
-    subsetDTActivityA$tot_steps,
+    subsetDTActivityA$total_steps,
+    binwidth = 5000,
+    geom = &quot;histogram&quot;, 
+    main = &quot;Histogram Registering Number of Days Reaching Step Totals&quot;,
+    xlab = &quot;Number of Steps Taken&quot;,
+    ylab = &quot;Number of Days&quot;,
+    fill = I(&quot;red&quot;), 
+    colour = I(&quot;black&quot;)) </code></pre>
+<p><img src="PA1_template_files/figure-html/task2step2-1.png" /> This auxillary histogram breaks shows each division by 100 step divisions.</p>
+<pre class="r"><code>qplot(
+    subsetDTActivityA$total_steps,
     binwidth = 500,
     geom = &quot;histogram&quot;, 
     main = &quot;Histogram Registering Number of Days Reaching Step Totals&quot;,
@@ -139,288 +146,244 @@ dtActivity &lt;- tbl_df(dfActivity)</code></pre>
     ylab = &quot;Number of Days&quot;,
     fill = I(&quot;lightgreen&quot;), 
     colour = I(&quot;black&quot;)) </code></pre>
-<p><img src="PA1_template_files/figure-html/task2step2-1.png" /></p>
-<p>Calculate and report the mean and median total number of steps taken per day</p>
+<p><img src="PA1_template_files/figure-html/task2step2b-1.png" /></p>
+<div id="subtask-calculate-and-report-the-mean-and-median-total-number-of-steps-taken-per-day." class="section level4">
+<h4>SUBTASK: Calculate and report the mean and median total number of steps taken per day.</h4>
+<pre class="r"><code># Calculate Median and Mean of Total Steps per Day.
+averageSteps &lt;- mean(subsetDTActivityA$total_steps)
+medianSteps &lt;- median(subsetDTActivityA$total_steps)</code></pre>
+</div>
+<div id="results" class="section level4">
+<h4>RESULTS:</h4>
+<p>The average number of total steps is 1.076618910^{4} The median number of total steps is 10765</p>
+<p>This table is a break down of the steps per day used in the calculations above.</p>
 <pre class="r"><code>stepReport &lt;- subsetDTActivityA %&gt;%
-                select(date,avg_steps,med_steps)
+                select(date,total_steps)
 knitr::kable(stepReport)</code></pre>
 <table>
 <thead>
 <tr class="header">
 <th align="left">date</th>
-<th align="right">avg_steps</th>
-<th align="right">med_steps</th>
+<th align="right">total_steps</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td align="left">2012-10-02</td>
-<td align="right">0.4375000</td>
-<td align="right">0</td>
+<td align="right">126</td>
 </tr>
 <tr class="even">
 <td align="left">2012-10-03</td>
-<td align="right">39.4166667</td>
-<td align="right">0</td>
+<td align="right">11352</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-10-04</td>
-<td align="right">42.0694444</td>
-<td align="right">0</td>
+<td align="right">12116</td>
 </tr>
 <tr class="even">
 <td align="left">2012-10-05</td>
-<td align="right">46.1597222</td>
-<td align="right">0</td>
+<td align="right">13294</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-10-06</td>
-<td align="right">53.5416667</td>
-<td align="right">0</td>
+<td align="right">15420</td>
 </tr>
 <tr class="even">
 <td align="left">2012-10-07</td>
-<td align="right">38.2465278</td>
-<td align="right">0</td>
+<td align="right">11015</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-10-09</td>
-<td align="right">44.4826389</td>
-<td align="right">0</td>
+<td align="right">12811</td>
 </tr>
 <tr class="even">
 <td align="left">2012-10-10</td>
-<td align="right">34.3750000</td>
-<td align="right">0</td>
+<td align="right">9900</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-10-11</td>
-<td align="right">35.7777778</td>
-<td align="right">0</td>
+<td align="right">10304</td>
 </tr>
 <tr class="even">
 <td align="left">2012-10-12</td>
-<td align="right">60.3541667</td>
-<td align="right">0</td>
+<td align="right">17382</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-10-13</td>
-<td align="right">43.1458333</td>
-<td align="right">0</td>
+<td align="right">12426</td>
 </tr>
 <tr class="even">
 <td align="left">2012-10-14</td>
-<td align="right">52.4236111</td>
-<td align="right">0</td>
+<td align="right">15098</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-10-15</td>
-<td align="right">35.2048611</td>
-<td align="right">0</td>
+<td align="right">10139</td>
 </tr>
 <tr class="even">
 <td align="left">2012-10-16</td>
-<td align="right">52.3750000</td>
-<td align="right">0</td>
+<td align="right">15084</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-10-17</td>
-<td align="right">46.7083333</td>
-<td align="right">0</td>
+<td align="right">13452</td>
 </tr>
 <tr class="even">
 <td align="left">2012-10-18</td>
-<td align="right">34.9166667</td>
-<td align="right">0</td>
+<td align="right">10056</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-10-19</td>
-<td align="right">41.0729167</td>
-<td align="right">0</td>
+<td align="right">11829</td>
 </tr>
 <tr class="even">
 <td align="left">2012-10-20</td>
-<td align="right">36.0937500</td>
-<td align="right">0</td>
+<td align="right">10395</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-10-21</td>
-<td align="right">30.6284722</td>
-<td align="right">0</td>
+<td align="right">8821</td>
 </tr>
 <tr class="even">
 <td align="left">2012-10-22</td>
-<td align="right">46.7361111</td>
-<td align="right">0</td>
+<td align="right">13460</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-10-23</td>
-<td align="right">30.9652778</td>
-<td align="right">0</td>
+<td align="right">8918</td>
 </tr>
 <tr class="even">
 <td align="left">2012-10-24</td>
-<td align="right">29.0104167</td>
-<td align="right">0</td>
+<td align="right">8355</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-10-25</td>
-<td align="right">8.6527778</td>
-<td align="right">0</td>
+<td align="right">2492</td>
 </tr>
 <tr class="even">
 <td align="left">2012-10-26</td>
-<td align="right">23.5347222</td>
-<td align="right">0</td>
+<td align="right">6778</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-10-27</td>
-<td align="right">35.1354167</td>
-<td align="right">0</td>
+<td align="right">10119</td>
 </tr>
 <tr class="even">
 <td align="left">2012-10-28</td>
-<td align="right">39.7847222</td>
-<td align="right">0</td>
+<td align="right">11458</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-10-29</td>
-<td align="right">17.4236111</td>
-<td align="right">0</td>
+<td align="right">5018</td>
 </tr>
 <tr class="even">
 <td align="left">2012-10-30</td>
-<td align="right">34.0937500</td>
-<td align="right">0</td>
+<td align="right">9819</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-10-31</td>
-<td align="right">53.5208333</td>
-<td align="right">0</td>
+<td align="right">15414</td>
 </tr>
 <tr class="even">
 <td align="left">2012-11-02</td>
-<td align="right">36.8055556</td>
-<td align="right">0</td>
+<td align="right">10600</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-11-03</td>
-<td align="right">36.7048611</td>
-<td align="right">0</td>
+<td align="right">10571</td>
 </tr>
 <tr class="even">
 <td align="left">2012-11-05</td>
-<td align="right">36.2465278</td>
-<td align="right">0</td>
+<td align="right">10439</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-11-06</td>
-<td align="right">28.9375000</td>
-<td align="right">0</td>
+<td align="right">8334</td>
 </tr>
 <tr class="even">
 <td align="left">2012-11-07</td>
-<td align="right">44.7326389</td>
-<td align="right">0</td>
+<td align="right">12883</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-11-08</td>
-<td align="right">11.1770833</td>
-<td align="right">0</td>
+<td align="right">3219</td>
 </tr>
 <tr class="even">
 <td align="left">2012-11-11</td>
-<td align="right">43.7777778</td>
-<td align="right">0</td>
+<td align="right">12608</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-11-12</td>
-<td align="right">37.3784722</td>
-<td align="right">0</td>
+<td align="right">10765</td>
 </tr>
 <tr class="even">
 <td align="left">2012-11-13</td>
-<td align="right">25.4722222</td>
-<td align="right">0</td>
+<td align="right">7336</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-11-15</td>
-<td align="right">0.1423611</td>
-<td align="right">0</td>
+<td align="right">41</td>
 </tr>
 <tr class="even">
 <td align="left">2012-11-16</td>
-<td align="right">18.8923611</td>
-<td align="right">0</td>
+<td align="right">5441</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-11-17</td>
-<td align="right">49.7881944</td>
-<td align="right">0</td>
+<td align="right">14339</td>
 </tr>
 <tr class="even">
 <td align="left">2012-11-18</td>
-<td align="right">52.4652778</td>
-<td align="right">0</td>
+<td align="right">15110</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-11-19</td>
-<td align="right">30.6979167</td>
-<td align="right">0</td>
+<td align="right">8841</td>
 </tr>
 <tr class="even">
 <td align="left">2012-11-20</td>
-<td align="right">15.5277778</td>
-<td align="right">0</td>
+<td align="right">4472</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-11-21</td>
-<td align="right">44.3993056</td>
-<td align="right">0</td>
+<td align="right">12787</td>
 </tr>
 <tr class="even">
 <td align="left">2012-11-22</td>
-<td align="right">70.9270833</td>
-<td align="right">0</td>
+<td align="right">20427</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-11-23</td>
-<td align="right">73.5902778</td>
-<td align="right">0</td>
+<td align="right">21194</td>
 </tr>
 <tr class="even">
 <td align="left">2012-11-24</td>
-<td align="right">50.2708333</td>
-<td align="right">0</td>
+<td align="right">14478</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-11-25</td>
-<td align="right">41.0902778</td>
-<td align="right">0</td>
+<td align="right">11834</td>
 </tr>
 <tr class="even">
 <td align="left">2012-11-26</td>
-<td align="right">38.7569444</td>
-<td align="right">0</td>
+<td align="right">11162</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-11-27</td>
-<td align="right">47.3819444</td>
-<td align="right">0</td>
+<td align="right">13646</td>
 </tr>
 <tr class="even">
 <td align="left">2012-11-28</td>
-<td align="right">35.3576389</td>
-<td align="right">0</td>
+<td align="right">10183</td>
 </tr>
 <tr class="odd">
 <td align="left">2012-11-29</td>
-<td align="right">24.4687500</td>
-<td align="right">0</td>
+<td align="right">7047</td>
 </tr>
 </tbody>
 </table>
 <hr />
+</div>
 </div>
 <div id="task-3-what-is-the-average-daily-activity-pattern" class="section level3">
 <h3>TASK 3: “What is the average daily activity pattern?”</h3>
@@ -492,12 +455,12 @@ subsetDTActivityUpdated &lt;-
   dtActivityUpdated %&gt;% 
   select( date, steps) %&gt;%
   group_by(date) %&gt;%
-  summarise(tot_steps = sum(steps),
-            avg_steps = mean(steps),
-            med_steps = median(steps))</code></pre>
+  summarise(total_steps = sum(steps))</code></pre>
+<div id="subtask-make-a-histogram-of-the-total-number-of-steps-taken-each-day" class="section level4">
+<h4>SUBTASK: Make a histogram of the total number of steps taken each day</h4>
 <pre class="r"><code># PLOT COMPLETE CASES DATASET
-qplot(subsetDTActivityUpdated$tot_steps,
-      binwidth = 500,
+qplot(subsetDTActivityUpdated$total_steps,
+      binwidth = 5000,
       geom = &quot;histogram&quot;, 
       main = &quot;Histogram Registering Number of Days Reaching Step Totals&quot;,
       xlab = &quot;Number of Steps Taken&quot;,
@@ -505,7 +468,75 @@ qplot(subsetDTActivityUpdated$tot_steps,
       fill = I(&quot;orange&quot;), 
       colour = I(&quot;black&quot;)) </code></pre>
 <p><img src="PA1_template_files/figure-html/task4step2-1.png" /></p>
+</div>
+<div id="subtask-calculate-and-report-the-mean-and-median-total-number-of-steps-taken-per-day.-1" class="section level4">
+<h4>SUBTASK: Calculate and report the mean and median total number of steps taken per day.</h4>
+<pre class="r"><code># Calculate Median and Mean of Total Steps per Day for the Imputed Data
+imputedAverageSteps &lt;- mean(subsetDTActivityUpdated$total_steps)
+imputedMedianSteps &lt;- median(subsetDTActivityUpdated$total_steps)</code></pre>
+</div>
+<div id="results-1" class="section level4">
+<h4>RESULTS:</h4>
+<p>The new average number of total steps within the imputed data is 1.078491810^{4} The new median number of total steps within the imputed data is 1.090910^{4}</p>
+</div>
+<div id="queries" class="section level4">
+<h4>QUERIES:</h4>
+<p><strong>Do these values differ from the estimates from the first part of the assignment?</strong></p>
+<pre class="r"><code>differenceAverageSteps &lt;- imputedAverageSteps - averageSteps
+differenceMedianSteps &lt;- imputedMedianSteps - medianSteps
+
+plusMinusNone &lt;- function(x) { if (x == 0 ) abs(x) else if (x &lt; 0) x else paste0(&quot;+&quot;,abs(x)) }
+
+dfDifference &lt;- 
+  as.data.frame(
+    rbind(
+    c(&#39;Average Total Steps&#39;,averageSteps,imputedAverageSteps,plusMinusNone(differenceAverageSteps)),
+    c(&#39;Median Total Steps&#39;,medianSteps,imputedMedianSteps,plusMinusNone(differenceMedianSteps))
+    ))
+
+colnames(dfDifference) &lt;- 
+    c(&#39;Tally Category&#39;,&#39;Original Estimate&#39;,&#39;Imputed New Estimate&#39;,&#39;Resultant Change/Difference&#39;)
+
+knitr::kable(dfDifference)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Tally Category</th>
+<th align="left">Original Estimate</th>
+<th align="left">Imputed New Estimate</th>
+<th align="left">Resultant Change/Difference</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Average Total Steps</td>
+<td align="left">10766.1886792453</td>
+<td align="left">10784.9180327869</td>
+<td align="left">+18.7293535416029</td>
+</tr>
+<tr class="even">
+<td align="left">Median Total Steps</td>
+<td align="left">10765</td>
+<td align="left">10909</td>
+<td align="left">+144</td>
+</tr>
+</tbody>
+</table>
+<p><strong>What is the impact of imputing missing data on the estimates of the total daily number of steps?</strong></p>
+<pre class="r"><code>highLowSame &lt;- 
+    function(x) { if (x == 0 ) &quot;No Difference&quot; 
+                  else if (x &lt; 0) paste(x,&quot;Lower&quot;) 
+                  else paste(x,&quot;Higher&quot;) }</code></pre>
+<ol style="list-style-type: upper-alpha">
+<li>Average of Total Steps: 18.7293535416029 Higher</li>
+<li>Medium of Total Steps: 144 Higher</li>
+</ol>
+</div>
+<div id="conclusion" class="section level4">
+<h4>CONCLUSION…</h4>
+<p><strong>By filling the in gaps where the NA were found, with the gratiously rounded up averages, we saw a relatively increase in the averages and medium.</strong></p>
 <hr />
+</div>
 </div>
 <div id="task-5-activity-patterns-on-weekdays-vs.weekends" class="section level3">
 <h3>TASK 5: Activity patterns on weekdays vs. weekends?</h3>

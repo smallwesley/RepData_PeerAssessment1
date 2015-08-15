@@ -76,15 +76,24 @@ subsetDTActivityA <-
     select( date, steps) %>%
     filter(!(is.na(steps) | is.nan(steps))) %>%
     group_by(date) %>%
-    summarise(
-        tot_steps = sum(steps),
-        avg_steps = mean(steps, na.rm = TRUE),
-        med_steps = median(steps, na.rm = TRUE))
+    summarise(total_steps = sum(steps))
 ```
-The histogram of the total number of steps taken each day
+The histogram of the total number of steps taken each day. 
 ```{r task2step2}
 qplot(
-    subsetDTActivityA$tot_steps,
+    subsetDTActivityA$total_steps,
+    binwidth = 5000,
+    geom = "histogram", 
+    main = "Histogram Registering Number of Days Reaching Step Totals",
+    xlab = "Number of Steps Taken",
+    ylab = "Number of Days",
+    fill = I("red"), 
+    colour = I("black")) 
+```
+This auxillary histogram breaks shows each division by 100 step divisions.
+```{r task2step2b}
+qplot(
+    subsetDTActivityA$total_steps,
     binwidth = 500,
     geom = "histogram", 
     main = "Histogram Registering Number of Days Reaching Step Totals",
@@ -94,10 +103,20 @@ qplot(
     colour = I("black")) 
 ```
 
-Calculate and report the mean and median total number of steps taken per day
-```{r task2step3,results='asis'}
+####SUBTASK: Calculate and report the mean and median total number of steps taken per day.
+```{r task2step3}
+# Calculate Median and Mean of Total Steps per Day.
+averageSteps <- mean(subsetDTActivityA$total_steps)
+medianSteps <- median(subsetDTActivityA$total_steps)
+```
+####RESULTS:
+The average number of total steps is `r averageSteps`
+The median number of total steps is `r medianSteps`
+
+This table is a break down of the steps per day used in the calculations above.
+```{r task2step4,results='asis'}
 stepReport <- subsetDTActivityA %>%
-                select(date,avg_steps,med_steps)
+                select(date,total_steps)
 knitr::kable(stepReport)
 ```
 
@@ -180,15 +199,13 @@ subsetDTActivityUpdated <-
   dtActivityUpdated %>% 
   select( date, steps) %>%
   group_by(date) %>%
-  summarise(tot_steps = sum(steps),
-            avg_steps = mean(steps),
-            med_steps = median(steps))
+  summarise(total_steps = sum(steps))
 ```
-
+#### SUBTASK: Make a histogram of the total number of steps taken each day 
 ```{r task4step2}
 # PLOT COMPLETE CASES DATASET
-qplot(subsetDTActivityUpdated$tot_steps,
-      binwidth = 500,
+qplot(subsetDTActivityUpdated$total_steps,
+      binwidth = 5000,
       geom = "histogram", 
       main = "Histogram Registering Number of Days Reaching Step Totals",
       xlab = "Number of Steps Taken",
@@ -196,6 +213,51 @@ qplot(subsetDTActivityUpdated$tot_steps,
       fill = I("orange"), 
       colour = I("black")) 
 ```
+
+#### SUBTASK: Calculate and report the mean and median total number of steps taken per day. 
+```{r task4step3}
+# Calculate Median and Mean of Total Steps per Day for the Imputed Data
+imputedAverageSteps <- mean(subsetDTActivityUpdated$total_steps)
+imputedMedianSteps <- median(subsetDTActivityUpdated$total_steps)
+```
+
+####RESULTS:
+The new average number of total steps within the imputed data is `r imputedAverageSteps`
+The new median number of total steps within the imputed data is `r imputedMedianSteps`
+
+#### QUERIES:
+**Do these values differ from the estimates from the first part of the assignment?**
+```{r task4step4}
+differenceAverageSteps <- imputedAverageSteps - averageSteps
+differenceMedianSteps <- imputedMedianSteps - medianSteps
+
+plusMinusNone <- function(x) { if (x == 0 ) abs(x) else if (x < 0) x else paste0("+",abs(x)) }
+
+dfDifference <- 
+  as.data.frame(
+    rbind(
+    c('Average Total Steps',averageSteps,imputedAverageSteps,plusMinusNone(differenceAverageSteps)),
+    c('Median Total Steps',medianSteps,imputedMedianSteps,plusMinusNone(differenceMedianSteps))
+    ))
+
+colnames(dfDifference) <- 
+    c('Tally Category','Original Estimate','Imputed New Estimate','Resultant Change/Difference')
+
+knitr::kable(dfDifference)
+```
+
+**What is the impact of imputing missing data on the estimates of the total daily number of steps?**
+```{r task4step5}
+highLowSame <- 
+    function(x) { if (x == 0 ) "No Difference" 
+                  else if (x < 0) paste(x,"Lower") 
+                  else paste(x,"Higher") }
+```
+A) Average of Total Steps: `r highLowSame(differenceAverageSteps)`
+B) Medium of Total Steps: `r highLowSame(differenceMedianSteps)`
+
+####CONCLUSION...
+**By filling the in gaps where the NA were found, with the gratiously rounded up averages, we saw a relatively increase in the averages and medium.**
 
 ***
 ### TASK 5: Activity patterns on weekdays vs. weekends?

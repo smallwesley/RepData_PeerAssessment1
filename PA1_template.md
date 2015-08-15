@@ -75,16 +75,28 @@ subsetDTActivityA <-
     select( date, steps) %>%
     filter(!(is.na(steps) | is.nan(steps))) %>%
     group_by(date) %>%
-    summarise(
-        tot_steps = sum(steps),
-        avg_steps = mean(steps, na.rm = TRUE),
-        med_steps = median(steps, na.rm = TRUE))
+    summarise(total_steps = sum(steps))
 ```
-The histogram of the total number of steps taken each day
+The histogram of the total number of steps taken each day. 
 
 ```r
 qplot(
-    subsetDTActivityA$tot_steps,
+    subsetDTActivityA$total_steps,
+    binwidth = 5000,
+    geom = "histogram", 
+    main = "Histogram Registering Number of Days Reaching Step Totals",
+    xlab = "Number of Steps Taken",
+    ylab = "Number of Days",
+    fill = I("red"), 
+    colour = I("black")) 
+```
+
+![](PA1_template_files/figure-html/task2step2-1.png) 
+This auxillary histogram breaks shows each division by 100 step divisions.
+
+```r
+qplot(
+    subsetDTActivityA$total_steps,
     binwidth = 500,
     geom = "histogram", 
     main = "Histogram Registering Number of Days Reaching Step Totals",
@@ -94,73 +106,84 @@ qplot(
     colour = I("black")) 
 ```
 
-![](PA1_template_files/figure-html/task2step2-1.png) 
+![](PA1_template_files/figure-html/task2step2b-1.png) 
 
-Calculate and report the mean and median total number of steps taken per day
+####SUBTASK: Calculate and report the mean and median total number of steps taken per day.
+
+```r
+# Calculate Median and Mean of Total Steps per Day.
+averageSteps <- mean(subsetDTActivityA$total_steps)
+medianSteps <- median(subsetDTActivityA$total_steps)
+```
+####RESULTS:
+The average number of total steps is 1.0766189\times 10^{4}
+The median number of total steps is 10765
+
+This table is a break down of the steps per day used in the calculations above.
 
 ```r
 stepReport <- subsetDTActivityA %>%
-                select(date,avg_steps,med_steps)
+                select(date,total_steps)
 knitr::kable(stepReport)
 ```
 
 
 
-date           avg_steps   med_steps
------------  -----------  ----------
-2012-10-02     0.4375000           0
-2012-10-03    39.4166667           0
-2012-10-04    42.0694444           0
-2012-10-05    46.1597222           0
-2012-10-06    53.5416667           0
-2012-10-07    38.2465278           0
-2012-10-09    44.4826389           0
-2012-10-10    34.3750000           0
-2012-10-11    35.7777778           0
-2012-10-12    60.3541667           0
-2012-10-13    43.1458333           0
-2012-10-14    52.4236111           0
-2012-10-15    35.2048611           0
-2012-10-16    52.3750000           0
-2012-10-17    46.7083333           0
-2012-10-18    34.9166667           0
-2012-10-19    41.0729167           0
-2012-10-20    36.0937500           0
-2012-10-21    30.6284722           0
-2012-10-22    46.7361111           0
-2012-10-23    30.9652778           0
-2012-10-24    29.0104167           0
-2012-10-25     8.6527778           0
-2012-10-26    23.5347222           0
-2012-10-27    35.1354167           0
-2012-10-28    39.7847222           0
-2012-10-29    17.4236111           0
-2012-10-30    34.0937500           0
-2012-10-31    53.5208333           0
-2012-11-02    36.8055556           0
-2012-11-03    36.7048611           0
-2012-11-05    36.2465278           0
-2012-11-06    28.9375000           0
-2012-11-07    44.7326389           0
-2012-11-08    11.1770833           0
-2012-11-11    43.7777778           0
-2012-11-12    37.3784722           0
-2012-11-13    25.4722222           0
-2012-11-15     0.1423611           0
-2012-11-16    18.8923611           0
-2012-11-17    49.7881944           0
-2012-11-18    52.4652778           0
-2012-11-19    30.6979167           0
-2012-11-20    15.5277778           0
-2012-11-21    44.3993056           0
-2012-11-22    70.9270833           0
-2012-11-23    73.5902778           0
-2012-11-24    50.2708333           0
-2012-11-25    41.0902778           0
-2012-11-26    38.7569444           0
-2012-11-27    47.3819444           0
-2012-11-28    35.3576389           0
-2012-11-29    24.4687500           0
+date          total_steps
+-----------  ------------
+2012-10-02            126
+2012-10-03          11352
+2012-10-04          12116
+2012-10-05          13294
+2012-10-06          15420
+2012-10-07          11015
+2012-10-09          12811
+2012-10-10           9900
+2012-10-11          10304
+2012-10-12          17382
+2012-10-13          12426
+2012-10-14          15098
+2012-10-15          10139
+2012-10-16          15084
+2012-10-17          13452
+2012-10-18          10056
+2012-10-19          11829
+2012-10-20          10395
+2012-10-21           8821
+2012-10-22          13460
+2012-10-23           8918
+2012-10-24           8355
+2012-10-25           2492
+2012-10-26           6778
+2012-10-27          10119
+2012-10-28          11458
+2012-10-29           5018
+2012-10-30           9819
+2012-10-31          15414
+2012-11-02          10600
+2012-11-03          10571
+2012-11-05          10439
+2012-11-06           8334
+2012-11-07          12883
+2012-11-08           3219
+2012-11-11          12608
+2012-11-12          10765
+2012-11-13           7336
+2012-11-15             41
+2012-11-16           5441
+2012-11-17          14339
+2012-11-18          15110
+2012-11-19           8841
+2012-11-20           4472
+2012-11-21          12787
+2012-11-22          20427
+2012-11-23          21194
+2012-11-24          14478
+2012-11-25          11834
+2012-11-26          11162
+2012-11-27          13646
+2012-11-28          10183
+2012-11-29           7047
 
 ***
 ### TASK 3: "What is the average daily activity pattern?"
@@ -242,16 +265,14 @@ subsetDTActivityUpdated <-
   dtActivityUpdated %>% 
   select( date, steps) %>%
   group_by(date) %>%
-  summarise(tot_steps = sum(steps),
-            avg_steps = mean(steps),
-            med_steps = median(steps))
+  summarise(total_steps = sum(steps))
 ```
-
+#### SUBTASK: Make a histogram of the total number of steps taken each day 
 
 ```r
 # PLOT COMPLETE CASES DATASET
-qplot(subsetDTActivityUpdated$tot_steps,
-      binwidth = 500,
+qplot(subsetDTActivityUpdated$total_steps,
+      binwidth = 5000,
       geom = "histogram", 
       main = "Histogram Registering Number of Days Reaching Step Totals",
       xlab = "Number of Steps Taken",
@@ -261,6 +282,61 @@ qplot(subsetDTActivityUpdated$tot_steps,
 ```
 
 ![](PA1_template_files/figure-html/task4step2-1.png) 
+
+#### SUBTASK: Calculate and report the mean and median total number of steps taken per day. 
+
+```r
+# Calculate Median and Mean of Total Steps per Day for the Imputed Data
+imputedAverageSteps <- mean(subsetDTActivityUpdated$total_steps)
+imputedMedianSteps <- median(subsetDTActivityUpdated$total_steps)
+```
+
+####RESULTS:
+The new average number of total steps within the imputed data is 1.0784918\times 10^{4}
+The new median number of total steps within the imputed data is 1.0909\times 10^{4}
+
+#### QUERIES:
+**Do these values differ from the estimates from the first part of the assignment?**
+
+```r
+differenceAverageSteps <- imputedAverageSteps - averageSteps
+differenceMedianSteps <- imputedMedianSteps - medianSteps
+
+plusMinusNone <- function(x) { if (x == 0 ) abs(x) else if (x < 0) x else paste0("+",abs(x)) }
+
+dfDifference <- 
+  as.data.frame(
+    rbind(
+    c('Average Total Steps',averageSteps,imputedAverageSteps,plusMinusNone(differenceAverageSteps)),
+    c('Median Total Steps',medianSteps,imputedMedianSteps,plusMinusNone(differenceMedianSteps))
+    ))
+
+colnames(dfDifference) <- 
+    c('Tally Category','Original Estimate','Imputed New Estimate','Resultant Change/Difference')
+
+knitr::kable(dfDifference)
+```
+
+
+
+Tally Category        Original Estimate   Imputed New Estimate   Resultant Change/Difference 
+--------------------  ------------------  ---------------------  ----------------------------
+Average Total Steps   10766.1886792453    10784.9180327869       +18.7293535416029           
+Median Total Steps    10765               10909                  +144                        
+
+**What is the impact of imputing missing data on the estimates of the total daily number of steps?**
+
+```r
+highLowSame <- 
+    function(x) { if (x == 0 ) "No Difference" 
+                  else if (x < 0) paste(x,"Lower") 
+                  else paste(x,"Higher") }
+```
+A) Average of Total Steps: 18.7293535416029 Higher
+B) Medium of Total Steps: 144 Higher
+
+####CONCLUSION...
+**By filling the in gaps where the NA were found, with the gratiously rounded up averages, we saw a relatively increase in the averages and medium.**
 
 ***
 ### TASK 5: Activity patterns on weekdays vs. weekends?
