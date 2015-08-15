@@ -157,7 +157,7 @@ This table is a break down of the steps per day used in the calculations above.
 ```{r task2step4,results='asis'}
 stepReport <- subsetDTActivityA %>%
                 select(date,total_steps)
-knitr::kable(stepReport)
+knitr::kable(stepReport, format = "markdown")
 ```
 
 ***
@@ -283,7 +283,7 @@ dfDifference <-
 colnames(dfDifference) <- 
     c('Tally Category','Original Estimate','Imputed New Estimate','Resultant Change/Difference')
 
-knitr::kable(dfDifference)
+knitr::kable(dfDifference, format = "markdown")
 ```
 
 **What is the impact of imputing missing data on the estimates of the total daily number of steps?**

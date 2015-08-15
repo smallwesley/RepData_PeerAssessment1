@@ -201,7 +201,7 @@ medianSteps &lt;- median(subsetDTActivityA$total_steps)</code></pre>
 <p>This table is a break down of the steps per day used in the calculations above.</p>
 <pre class="r"><code>stepReport &lt;- subsetDTActivityA %&gt;%
                 select(date,total_steps)
-knitr::kable(stepReport)</code></pre>
+knitr::kable(stepReport, format = &quot;markdown&quot;)</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -539,7 +539,7 @@ dfDifference &lt;-
 colnames(dfDifference) &lt;- 
     c(&#39;Tally Category&#39;,&#39;Original Estimate&#39;,&#39;Imputed New Estimate&#39;,&#39;Resultant Change/Difference&#39;)
 
-knitr::kable(dfDifference)</code></pre>
+knitr::kable(dfDifference, format = &quot;markdown&quot;)</code></pre>
 <table>
 <thead>
 <tr class="header">
